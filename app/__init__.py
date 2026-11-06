@@ -1,1 +1,1 @@
-"""Local web gateway for the astrology chat interface."""
+"""Local web gateway for the personalized memory chat interface."""

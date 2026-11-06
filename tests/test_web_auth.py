@@ -157,13 +157,13 @@ def test_https_deployment_sets_secure_cookie(tmp_path):
     ],
 )
 def test_rejects_unsafe_configured_origin(tmp_path, origin):
-    with pytest.raises(ValueError, match="ASTRO_WEB_AUTH_ORIGIN"):
+    with pytest.raises(ValueError, match="PMVA_WEB_AUTH_ORIGIN"):
         build_app(tmp_path, origin=origin)
 
 
 def test_auth_factory_requires_explicit_public_origin(tmp_path, monkeypatch):
-    monkeypatch.delenv("ASTRO_WEB_AUTH_ORIGIN", raising=False)
-    with pytest.raises(ValueError, match="ASTRO_WEB_AUTH_ORIGIN is required"):
+    monkeypatch.delenv("PMVA_WEB_AUTH_ORIGIN", raising=False)
+    with pytest.raises(ValueError, match="PMVA_WEB_AUTH_ORIGIN is required"):
         create_web_auth_service(
             accounts=AccountStore(tmp_path / "accounts.sqlite3"),
             session_db_path=tmp_path / "sessions.sqlite3",

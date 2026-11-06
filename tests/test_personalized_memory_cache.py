@@ -5,10 +5,10 @@ from types import SimpleNamespace
 from fastapi.testclient import TestClient
 from pydantic_ai.models.test import TestModel
 
-from astro_memory.config import Settings
-from astro_memory.fast_chat import FastChatEngine, FastDecision
-from astro_memory.main import create_app
-from astro_memory.storage import ChatStore
+from personalized_memory.config import Settings
+from personalized_memory.fast_chat import FastChatEngine, FastDecision
+from personalized_memory.main import create_app
+from personalized_memory.storage import ChatStore
 
 
 class Agent:
@@ -68,8 +68,8 @@ def test_warm_and_turns_use_no_memory_or_history_reads(tmp_path: Path, monkeypat
 
 
 def test_preload_endpoint_requires_server_secret(tmp_path: Path, monkeypatch):
-    monkeypatch.setenv("ASTRO_MEMORY_FAST", "1")
-    monkeypatch.setenv("ASTRO_MEMORY_WARM_TOKEN", "a-long-internal-secret")
+    monkeypatch.setenv("PMVA_MEMORY_FAST", "1")
+    monkeypatch.setenv("PMVA_MEMORY_WARM_TOKEN", "a-long-internal-secret")
     test_model = TestModel(custom_output_args={"response": "Hello"})
     app = create_app(
         settings=Settings(_env_file=None, database_path=tmp_path / "db.sqlite3"),
@@ -158,7 +158,7 @@ def test_failed_memory_commit_does_not_publish_to_cache(tmp_path: Path, monkeypa
 
 
 def test_eviction_reloads_committed_memory_and_history(tmp_path: Path, monkeypatch):
-    import astro_memory.cache as cache_module
+    import personalized_memory.cache as cache_module
 
     async def run():
         store = ChatStore(tmp_path / "db.sqlite3")

@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+from personalized_memory.compat import getenv
+
 import asyncio
 import hashlib
 import ipaddress
@@ -72,7 +74,7 @@ def _canonical_origin(value: str, *, configured: bool = False) -> str | None:
     except ValueError as exc:
         if configured:
             raise ValueError(
-                "ASTRO_WEB_AUTH_ORIGIN must be HTTPS or a loopback HTTP origin"
+                "PMVA_WEB_AUTH_ORIGIN must be HTTPS or a loopback HTTP origin"
             ) from exc
         return None
 
@@ -354,12 +356,12 @@ def create_web_auth_service(
     warm_memory: Callable[[str, str], Awaitable[None]] | None = None,
 ) -> WebAuthService:
     """Create cookie auth for a same-origin browser app; no forwarded headers are trusted."""
-    account_path = accounts_db_path or os.getenv(
-        "ASTRO_ACCOUNTS_DB",
+    account_path = accounts_db_path or getenv(
+        "PMVA_ACCOUNTS_DB",
         str(Path.home() / ".local" / "share" / "conversational-ai-for-astro" / "accounts.sqlite3"),
     )
-    session_path = session_db_path or os.getenv(
-        "ASTRO_WEB_SESSIONS_DB",
+    session_path = session_db_path or getenv(
+        "PMVA_WEB_SESSIONS_DB",
         str(
             Path.home()
             / ".local"
@@ -368,9 +370,9 @@ def create_web_auth_service(
             / "web-sessions.sqlite3"
         ),
     )
-    origin = public_origin or os.getenv("ASTRO_WEB_AUTH_ORIGIN", "")
+    origin = public_origin or getenv("PMVA_WEB_AUTH_ORIGIN", "")
     if not origin:
-        raise ValueError("ASTRO_WEB_AUTH_ORIGIN is required")
+        raise ValueError("PMVA_WEB_AUTH_ORIGIN is required")
     return WebAuthService(
         accounts=accounts if accounts is not None else AccountStore(account_path),
         session_db_path=session_path,

@@ -44,7 +44,7 @@ def test_modes_use_temporary_databases_and_preserve_turn_order(monkeypatch):
     scenarios = [
         {"name": "sample", "turns": [{**turn, "message": "first"}, {**turn, "message": "second"}]}
     ]
-    monkeypatch.setenv("ASTRO_MEMORY_FAST", "existing")
+    monkeypatch.setenv("PMVA_MEMORY_FAST", "existing")
     for mode in ("original", "fast"):
         result = evaluator.run_mode(mode, scenarios, {}, False)
         assert result["successful_turns"] == 2
@@ -52,4 +52,4 @@ def test_modes_use_temporary_databases_and_preserve_turn_order(monkeypatch):
     assert messages == ["first", "second", "first", "second"]
     assert paths[0] != paths[1]
     assert all(not Path(path).exists() for path in paths)
-    assert evaluator.os.environ["ASTRO_MEMORY_FAST"] == "existing"
+    assert evaluator.os.environ["PMVA_MEMORY_FAST"] == "existing"

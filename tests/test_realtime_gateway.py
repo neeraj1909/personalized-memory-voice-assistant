@@ -136,7 +136,7 @@ def test_call_uses_server_session_config_and_returns_sdp_and_call_id():
             request = requests[0]
             assert request.headers["authorization"] == "Bearer secret-test-key"
             assert b"offer-sdp" in request.content
-            assert b"ask_mynaksh" in request.content
+            assert b"ask_memory" in request.content
             assert b"gpt-realtime-2.1" in request.content
             assert b"gpt-4o-mini-transcribe" in request.content
             assert "language" not in session_config()["audio"]["input"]["transcription"]
@@ -556,7 +556,7 @@ def test_session_routes_every_topic_to_mynaksh_without_astrology_restriction():
     instructions = config["instructions"].lower()
     assert "every user turn" in instructions
     assert "whatever its topic" in instructions
-    assert "ask_mynaksh" in instructions
+    assert "ask_memory" in instructions
     assert "do not translate" in instructions
     assert "hinglish" in instructions
     assert "astrolog" not in instructions

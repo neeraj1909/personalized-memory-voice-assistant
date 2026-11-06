@@ -1,4 +1,4 @@
-"""Single-model-call variant of the copied MyNaksh chat engine.
+"""Single-model-call variant of the copied memory chat engine.
 
 Unlike the original two-agent flow, this passes candidate memory values to the
 model before selection. Enable only after evaluating the relevance trade-off.

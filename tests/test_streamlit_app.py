@@ -30,12 +30,12 @@ def identity_signing_key_file(tmp_path, monkeypatch):
         )
     )
     path.chmod(0o600)
-    monkeypatch.setenv("ASTRO_IDENTITY_PRIVATE_KEY_FILE", str(path))
+    monkeypatch.setenv("PMVA_IDENTITY_PRIVATE_KEY_FILE", str(path))
     return key
 
 
 def test_auth_gate_shows_local_account_forms_before_chat(tmp_path, monkeypatch):
-    monkeypatch.setenv("ASTRO_ACCOUNTS_DB", str(tmp_path / "accounts.sqlite3"))
+    monkeypatch.setenv("PMVA_ACCOUNTS_DB", str(tmp_path / "accounts.sqlite3"))
     app = AppTest.from_file(APP_PATH).run()
 
     assert not app.exception
@@ -49,7 +49,7 @@ def test_auth_gate_shows_local_account_forms_before_chat(tmp_path, monkeypatch):
 
 
 def test_local_account_registration_gates_chat_and_uses_server_account_id(tmp_path, monkeypatch):
-    monkeypatch.setenv("ASTRO_ACCOUNTS_DB", str(tmp_path / "accounts.sqlite3"))
+    monkeypatch.setenv("PMVA_ACCOUNTS_DB", str(tmp_path / "accounts.sqlite3"))
     app = AppTest.from_file(APP_PATH).run()
     app.text_input(key="register_username").set_value("demo-user")
     app.text_input(key="register_password").set_value("at-least-12-characters")
@@ -64,8 +64,8 @@ def test_local_account_registration_gates_chat_and_uses_server_account_id(tmp_pa
 
 
 def test_chat_posts_account_identity_and_reset_rotates_session(tmp_path, monkeypatch):
-    monkeypatch.setenv("ASTRO_ACCOUNTS_DB", str(tmp_path / "accounts.sqlite3"))
-    monkeypatch.setenv("ASTRO_GATEWAY_TOKEN", "test-only-token-with-at-least-32-chars")
+    monkeypatch.setenv("PMVA_ACCOUNTS_DB", str(tmp_path / "accounts.sqlite3"))
+    monkeypatch.setenv("PMVA_GATEWAY_TOKEN", "test-only-token-with-at-least-32-chars")
     monkeypatch.setenv("CHAT_CLIENT_TIMEOUT_SECONDS", "245")
     posted: list[tuple[str, dict]] = []
 
@@ -109,8 +109,8 @@ def test_chat_posts_account_identity_and_reset_rotates_session(tmp_path, monkeyp
 
 
 def test_audio_requires_prior_consent_and_explicit_transcribe_action(tmp_path, monkeypatch):
-    monkeypatch.setenv("ASTRO_ACCOUNTS_DB", str(tmp_path / "accounts.sqlite3"))
-    monkeypatch.setenv("ASTRO_GATEWAY_TOKEN", "test-only-token-with-at-least-32-chars")
+    monkeypatch.setenv("PMVA_ACCOUNTS_DB", str(tmp_path / "accounts.sqlite3"))
+    monkeypatch.setenv("PMVA_GATEWAY_TOKEN", "test-only-token-with-at-least-32-chars")
     calls: list[tuple[str, dict]] = []
 
     def fake_post(url, **kwargs):
@@ -167,12 +167,12 @@ def test_gateway_client_requires_server_token_and_never_leaks_it_to_chat_payload
         return httpx.Response(200, json={"response": "reply"})
 
     monkeypatch.setattr(httpx, "post", fake_post)
-    monkeypatch.delenv("ASTRO_GATEWAY_TOKEN", raising=False)
+    monkeypatch.delenv("PMVA_GATEWAY_TOKEN", raising=False)
     with pytest.raises(GatewayError, match="not configured"):
         post_chat("acct", "session", "hello")
     assert calls == []
 
-    monkeypatch.setenv("ASTRO_GATEWAY_TOKEN", "server-only-token-with-at-least-32-chars")
+    monkeypatch.setenv("PMVA_GATEWAY_TOKEN", "server-only-token-with-at-least-32-chars")
     assert post_chat("acct", "session", "hello") == "reply"
     assert (
         calls[0][1]["headers"]["Authorization"] == "Bearer server-only-token-with-at-least-32-chars"
@@ -181,8 +181,8 @@ def test_gateway_client_requires_server_token_and_never_leaks_it_to_chat_payload
 
 
 def test_gateway_client_fails_closed_without_identity_signing_key(monkeypatch):
-    monkeypatch.setenv("ASTRO_GATEWAY_TOKEN", "server-only-token-with-at-least-32-chars")
-    monkeypatch.delenv("ASTRO_IDENTITY_PRIVATE_KEY_FILE", raising=False)
+    monkeypatch.setenv("PMVA_GATEWAY_TOKEN", "server-only-token-with-at-least-32-chars")
+    monkeypatch.delenv("PMVA_IDENTITY_PRIVATE_KEY_FILE", raising=False)
     monkeypatch.setattr(httpx, "post", lambda *_args, **_kwargs: pytest.fail("must not send"))
     with pytest.raises(GatewayError, match="identity signing is not configured"):
         post_chat("acct", "session", "hello")
@@ -190,9 +190,9 @@ def test_gateway_client_fails_closed_without_identity_signing_key(monkeypatch):
 
 @pytest.mark.skipif(os.name != "posix", reason="POSIX private-key modes")
 def test_gateway_client_rejects_group_or_world_readable_signing_key(monkeypatch):
-    key_path = Path(os.environ["ASTRO_IDENTITY_PRIVATE_KEY_FILE"])
+    key_path = Path(os.environ["PMVA_IDENTITY_PRIVATE_KEY_FILE"])
     key_path.chmod(0o644)
-    monkeypatch.setenv("ASTRO_GATEWAY_TOKEN", "server-only-token-with-at-least-32-chars")
+    monkeypatch.setenv("PMVA_GATEWAY_TOKEN", "server-only-token-with-at-least-32-chars")
     monkeypatch.setattr(httpx, "post", lambda *_args, **_kwargs: pytest.fail("must not send"))
     with pytest.raises(GatewayError, match="permissions must be 0600"):
         post_chat("acct", "session", "hello")
@@ -203,7 +203,7 @@ def test_gateway_client_rejects_short_whitespace_and_non_ascii_tokens(monkeypatc
         httpx, "post", lambda *_args, **_kwargs: pytest.fail("invalid token must not send")
     )
     for invalid_token in ("x" * 31, "x" * 32 + " ", "é" * 32):
-        monkeypatch.setenv("ASTRO_GATEWAY_TOKEN", invalid_token)
+        monkeypatch.setenv("PMVA_GATEWAY_TOKEN", invalid_token)
         with pytest.raises(GatewayError, match="not configured"):
             post_chat("acct", "session", "hello")
 
@@ -221,7 +221,7 @@ def test_gateway_client_rejects_short_whitespace_and_non_ascii_tokens(monkeypatc
 )
 def test_gateway_client_rejects_unsafe_urls_before_sending_token(monkeypatch, gateway_url):
     monkeypatch.setenv("GATEWAY_URL", gateway_url)
-    monkeypatch.setenv("ASTRO_GATEWAY_TOKEN", "server-only-token-with-at-least-32-chars")
+    monkeypatch.setenv("PMVA_GATEWAY_TOKEN", "server-only-token-with-at-least-32-chars")
     monkeypatch.setattr(
         httpx, "post", lambda *_args, **_kwargs: pytest.fail("unsafe gateway URL must not send")
     )
@@ -235,7 +235,7 @@ def test_gateway_client_rejects_unsafe_urls_before_sending_token(monkeypatch, ga
 )
 def test_gateway_client_uses_validated_origin_without_following_redirects(monkeypatch, gateway_url):
     monkeypatch.setenv("GATEWAY_URL", gateway_url)
-    monkeypatch.setenv("ASTRO_GATEWAY_TOKEN", "server-only-token-with-at-least-32-chars")
+    monkeypatch.setenv("PMVA_GATEWAY_TOKEN", "server-only-token-with-at-least-32-chars")
     calls = []
 
     def fake_post(url, **kwargs):
@@ -249,8 +249,8 @@ def test_gateway_client_uses_validated_origin_without_following_redirects(monkey
 
 
 def test_read_aloud_is_explicit_local_and_clears_after_new_turn(tmp_path, monkeypatch):
-    monkeypatch.setenv("ASTRO_ACCOUNTS_DB", str(tmp_path / "accounts.sqlite3"))
-    monkeypatch.setenv("ASTRO_GATEWAY_TOKEN", "test-only-token-with-at-least-32-chars")
+    monkeypatch.setenv("PMVA_ACCOUNTS_DB", str(tmp_path / "accounts.sqlite3"))
+    monkeypatch.setenv("PMVA_GATEWAY_TOKEN", "test-only-token-with-at-least-32-chars")
     synthesized = []
     tts_module = types.ModuleType("app.local_tts")
 
@@ -280,8 +280,8 @@ def test_read_aloud_is_explicit_local_and_clears_after_new_turn(tmp_path, monkey
 
 
 def test_live_voice_receives_authenticated_ids_and_server_callbacks(tmp_path, monkeypatch):
-    monkeypatch.setenv("ASTRO_ACCOUNTS_DB", str(tmp_path / "accounts.sqlite3"))
-    monkeypatch.setenv("ASTRO_GATEWAY_TOKEN", "test-only-token-with-at-least-32-chars")
+    monkeypatch.setenv("PMVA_ACCOUNTS_DB", str(tmp_path / "accounts.sqlite3"))
+    monkeypatch.setenv("PMVA_GATEWAY_TOKEN", "test-only-token-with-at-least-32-chars")
     calls = []
     live_module = types.ModuleType("app.live_voice")
     live_module.render_live_voice = lambda user_id, session_id, **kwargs: calls.append(
@@ -305,8 +305,8 @@ def test_live_voice_receives_authenticated_ids_and_server_callbacks(tmp_path, mo
 def test_live_voice_shell_uses_component_transcript_once_without_extra_heading(
     tmp_path, monkeypatch
 ):
-    monkeypatch.setenv("ASTRO_ACCOUNTS_DB", str(tmp_path / "accounts.sqlite3"))
-    monkeypatch.setenv("ASTRO_GATEWAY_TOKEN", "test-only-token-with-at-least-32-chars")
+    monkeypatch.setenv("PMVA_ACCOUNTS_DB", str(tmp_path / "accounts.sqlite3"))
+    monkeypatch.setenv("PMVA_GATEWAY_TOKEN", "test-only-token-with-at-least-32-chars")
     live_module = types.ModuleType("app.live_voice")
 
     def render_live_voice(*_args, **_kwargs):
@@ -333,11 +333,11 @@ def test_live_voice_shell_uses_component_transcript_once_without_extra_heading(
 
 
 @pytest.mark.parametrize(
-    "config", [{"ASTRO_GATEWAY_TOKEN": None}, {"GATEWAY_URL": "http://example.com"}]
+    "config", [{"PMVA_GATEWAY_TOKEN": None}, {"GATEWAY_URL": "http://example.com"}]
 )
 def test_live_voice_does_not_mount_without_gateway_auth_and_safe_url(tmp_path, monkeypatch, config):
-    monkeypatch.setenv("ASTRO_ACCOUNTS_DB", str(tmp_path / "accounts.sqlite3"))
-    monkeypatch.setenv("ASTRO_GATEWAY_TOKEN", "test-only-token-with-at-least-32-chars")
+    monkeypatch.setenv("PMVA_ACCOUNTS_DB", str(tmp_path / "accounts.sqlite3"))
+    monkeypatch.setenv("PMVA_GATEWAY_TOKEN", "test-only-token-with-at-least-32-chars")
     monkeypatch.delenv("GATEWAY_URL", raising=False)
     calls = []
     live_module = types.ModuleType("app.live_voice")
@@ -360,8 +360,8 @@ def test_live_voice_does_not_mount_without_gateway_auth_and_safe_url(tmp_path, m
 
 
 def test_reset_and_logout_release_live_voice_runtime_immediately(tmp_path, monkeypatch):
-    monkeypatch.setenv("ASTRO_ACCOUNTS_DB", str(tmp_path / "accounts.sqlite3"))
-    monkeypatch.setenv("ASTRO_GATEWAY_TOKEN", "test-only-token-with-at-least-32-chars")
+    monkeypatch.setenv("PMVA_ACCOUNTS_DB", str(tmp_path / "accounts.sqlite3"))
+    monkeypatch.setenv("PMVA_GATEWAY_TOKEN", "test-only-token-with-at-least-32-chars")
     app = AppTest.from_file(APP_PATH).run()
     app.session_state["account_id"] = "acct-17"
     app.session_state["username"] = "demo-user"
@@ -394,7 +394,7 @@ def test_reset_and_logout_release_live_voice_runtime_immediately(tmp_path, monke
 
 
 def test_transcription_client_sends_raw_wav_with_server_bearer(monkeypatch):
-    monkeypatch.setenv("ASTRO_GATEWAY_TOKEN", "server-only-token-with-at-least-32-chars")
+    monkeypatch.setenv("PMVA_GATEWAY_TOKEN", "server-only-token-with-at-least-32-chars")
     calls = []
 
     def fake_post(url, **kwargs):

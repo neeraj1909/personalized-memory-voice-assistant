@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Evaluate ordered MyNaksh dataset turns against isolated local /chat instances.
+"""Evaluate ordered golden dataset turns against isolated local /chat instances.
 
 Example: .venv/bin/python scripts/evaluate_golden.py --mode both --limit 2
 Use --include-responses --output /private/path.json for manual rubric review.
@@ -20,8 +20,8 @@ from fastapi.testclient import TestClient
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
-from astro_memory.config import Settings
-from astro_memory.main import create_app
+from personalized_memory.config import Settings
+from personalized_memory.main import create_app
 
 DEFAULT_DATASET = Path.home() / "Code" / "mynaksh_golden_dataset.json"
 
@@ -41,8 +41,8 @@ def assess_context(turn, result):
 
 def run_mode(mode, scenarios, settings_args, include_responses):
     records = []
-    old_mode = os.environ.get("ASTRO_MEMORY_FAST")
-    os.environ["ASTRO_MEMORY_FAST"] = "1" if mode == "fast" else "0"
+    old_mode = os.environ.get("PMVA_MEMORY_FAST")
+    os.environ["PMVA_MEMORY_FAST"] = "1" if mode == "fast" else "0"
     try:
         with tempfile.TemporaryDirectory(prefix="mynaksh-golden-") as temp:
             settings = Settings(database_path=Path(temp) / "golden.sqlite", **settings_args)
@@ -90,9 +90,9 @@ def run_mode(mode, scenarios, settings_args, include_responses):
                             break
     finally:
         if old_mode is None:
-            os.environ.pop("ASTRO_MEMORY_FAST", None)
+            os.environ.pop("PMVA_MEMORY_FAST", None)
         else:
-            os.environ["ASTRO_MEMORY_FAST"] = old_mode
+            os.environ["PMVA_MEMORY_FAST"] = old_mode
     latencies = [r["latency_ms"] for r in records if r.get("status") == 200]
     checks = [
         r["context"]["pass"] for r in records if "context" in r and r["context"]["pass"] is not None

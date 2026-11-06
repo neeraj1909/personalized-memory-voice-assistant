@@ -195,9 +195,9 @@ def test_gateway_to_assignment_chat_keeps_scoped_unicode_memories(tmp_path: Path
     gateway_env.update(
         {
             "CHAT_API_URL": f"{assignment_url}/chat",
-            "ASTRO_GATEWAY_TOKEN": GATEWAY_TOKEN,
-            "ASTRO_IDENTITY_PUBLIC_KEY_FILE": str(public_key_path),
-            "ASTRO_GATEWAY_REPLAY_DB": str(tmp_path / "replays.sqlite3"),
+            "PMVA_GATEWAY_TOKEN": GATEWAY_TOKEN,
+            "PMVA_IDENTITY_PUBLIC_KEY_FILE": str(public_key_path),
+            "PMVA_GATEWAY_REPLAY_DB": str(tmp_path / "replays.sqlite3"),
             "CHAT_API_TIMEOUT_SECONDS": "15",
             "PYTHONPATH": str(WORKSPACE),
             "NO_PROXY": "127.0.0.1,localhost",

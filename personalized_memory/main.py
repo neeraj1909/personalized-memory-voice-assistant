@@ -1,7 +1,8 @@
 """FastAPI boundary for personalized chat."""
 
+from personalized_memory.compat import getenv
+
 import logging
-import os
 import secrets
 import uuid
 from contextlib import asynccontextmanager
@@ -133,7 +134,7 @@ def create_app(
                 )
                 application.state.context_agent = context_agent
                 application.state.reply_agent = reply_agent
-                if os.getenv("ASTRO_MEMORY_FAST") == "1":
+                if getenv("PMVA_MEMORY_FAST") == "1":
                     fast_agent = Agent(
                         answer_model,
                         name="fast_memory_chat",
@@ -161,7 +162,7 @@ def create_app(
 
     @application.post("/internal/memory/warm")
     async def warm_memory(payload: WarmRequest, request: Request) -> dict[str, bool]:
-        token = os.getenv("ASTRO_MEMORY_WARM_TOKEN", "")
+        token = getenv("PMVA_MEMORY_WARM_TOKEN", "")
         supplied = request.headers.get("authorization", "")
         if not token or not secrets.compare_digest(supplied, f"Bearer {token}"):
             raise HTTPException(status_code=401, detail="Unauthorized")

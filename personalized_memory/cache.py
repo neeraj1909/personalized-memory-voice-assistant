@@ -1,6 +1,6 @@
 """Bounded, process-local copies of committed per-user memory and session history.
 
-The copied MyNaksh service must be the sole writer of its SQLite database.
+The copied memory service must be the sole writer of its SQLite database.
 Evicted entries reload from SQLite; the database remains authoritative.
 """
 

@@ -21,10 +21,10 @@ from app.security import canonical_chat_body
 def test_auth_warms_memory_on_loopback_using_server_resolved_identity(tmp_path, monkeypatch):
     from fastapi.testclient import TestClient
 
-    monkeypatch.setenv("ASTRO_WEB_AUTH_ORIGIN", ORIGIN)
-    monkeypatch.setenv("ASTRO_ACCOUNTS_DB", str(tmp_path / "accounts.sqlite3"))
-    monkeypatch.setenv("ASTRO_WEB_SESSIONS_DB", str(tmp_path / "sessions.sqlite3"))
-    monkeypatch.setenv("ASTRO_MEMORY_WARM_TOKEN", "warm-test-secret")
+    monkeypatch.setenv("PMVA_WEB_AUTH_ORIGIN", ORIGIN)
+    monkeypatch.setenv("PMVA_ACCOUNTS_DB", str(tmp_path / "accounts.sqlite3"))
+    monkeypatch.setenv("PMVA_WEB_SESSIONS_DB", str(tmp_path / "sessions.sqlite3"))
+    monkeypatch.setenv("PMVA_MEMORY_WARM_TOKEN", "warm-test-secret")
     warm_requests = []
 
     async def upstream(request):
@@ -134,9 +134,9 @@ def _wait(event: threading.Event, timeout: float = 2.0) -> bool:
 
 
 def test_same_origin_app_auth_realtime_chat_binding_and_signed_chat(tmp_path, monkeypatch):
-    monkeypatch.setenv("ASTRO_WEB_AUTH_ORIGIN", ORIGIN)
-    monkeypatch.setenv("ASTRO_ACCOUNTS_DB", str(tmp_path / "accounts.sqlite3"))
-    monkeypatch.setenv("ASTRO_WEB_SESSIONS_DB", str(tmp_path / "sessions.sqlite3"))
+    monkeypatch.setenv("PMVA_WEB_AUTH_ORIGIN", ORIGIN)
+    monkeypatch.setenv("PMVA_ACCOUNTS_DB", str(tmp_path / "accounts.sqlite3"))
+    monkeypatch.setenv("PMVA_WEB_SESSIONS_DB", str(tmp_path / "sessions.sqlite3"))
     monkeypatch.setenv("OPENAI_API_KEY", "test-only-provider-key")
 
     private_key = Ed25519PrivateKey.generate()
@@ -203,7 +203,7 @@ def test_same_origin_app_auth_realtime_chat_binding_and_signed_chat(tmp_path, mo
     with TestClient(app, base_url=ORIGIN) as client:
         home = client.get("/")
         assert home.status_code == 200
-        assert "MyNaksh Voice Assistant" in home.text
+        assert "Personalized Memory Voice Assistant" in home.text
 
         registration = client.post(
             "/api/auth/register",
@@ -255,7 +255,7 @@ def test_same_origin_app_auth_realtime_chat_binding_and_signed_chat(tmp_path, mo
                     "output": [
                         {
                             "type": "function_call",
-                            "name": "ask_mynaksh",
+                            "name": "ask_memory",
                             "call_id": "tool-1",
                             "arguments": json.dumps({"message": "What should I reflect on?"}),
                         }

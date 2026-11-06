@@ -1,11 +1,12 @@
 """Server-to-server authentication and signed account assertions."""
 
+from personalized_memory.compat import getenv
+
 import base64
 import asyncio
 import hashlib
 import hmac
 import json
-import os
 import re
 import sqlite3
 import time
@@ -54,14 +55,14 @@ def canonical_chat_body(payload: dict) -> bytes:
 
 def load_identity_public_key(path: str | None = None) -> Ed25519PublicKey | None:
     """Load the gateway's public verification key; the private key stays in Streamlit."""
-    key_path = path if path is not None else os.getenv("ASTRO_IDENTITY_PUBLIC_KEY_FILE", "")
+    key_path = path if path is not None else getenv("PMVA_IDENTITY_PUBLIC_KEY_FILE", "")
     if not key_path:
         return None
     from cryptography.hazmat.primitives import serialization
 
     key = serialization.load_pem_public_key(Path(key_path).read_bytes())
     if not isinstance(key, Ed25519PublicKey):
-        raise ValueError("ASTRO_IDENTITY_PUBLIC_KEY_FILE must contain an Ed25519 public key")
+        raise ValueError("PMVA_IDENTITY_PUBLIC_KEY_FILE must contain an Ed25519 public key")
     return key
 
 

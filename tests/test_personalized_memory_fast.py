@@ -3,9 +3,9 @@ import json
 from pathlib import Path
 from types import SimpleNamespace
 
-from astro_memory.config import Settings
-from astro_memory.fast_chat import FastChatEngine, FastDecision
-from astro_memory.storage import ChatStore, MemoryDraft
+from personalized_memory.config import Settings
+from personalized_memory.fast_chat import FastChatEngine, FastDecision
+from personalized_memory.storage import ChatStore, MemoryDraft
 
 
 class FakeAgent:

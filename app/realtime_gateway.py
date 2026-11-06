@@ -1,7 +1,7 @@
 """Authenticated server-side signaling and tool sideband for direct Realtime WebRTC.
 
 The browser sends only an SDP offer; the gateway owns model/session policy, provider
-credentials, and the owner-bound MyNaksh callback. A direct browser data channel
+credentials, and the owner-bound personalized memory callback. A direct browser data channel
 can still send provider events, so policy checks are detection/termination
 controls, not a hard boundary against a modified client.
 """
@@ -31,7 +31,7 @@ MAX_SDP_BYTES = 200_000
 MAX_ACTIVE_SESSIONS = 4
 MAX_SESSION_SECONDS = 3600
 MAX_CHAT_MESSAGE_CHARS = 4_000
-TOOL_NAME = "ask_mynaksh"
+TOOL_NAME = "ask_memory"
 
 
 class RealtimeBrokerError(Exception):
@@ -39,13 +39,13 @@ class RealtimeBrokerError(Exception):
 
 
 def session_config(model: str = "gpt-realtime-2.1") -> dict[str, Any]:
-    """Server-owned policy: one required MyNaksh tool, fixed audio and VAD config."""
+    """Server-owned policy: one required personalized memory tool, fixed audio and VAD config."""
     return {
         "type": "realtime",
         "model": model,
         "instructions": (
-            "You are the voice interface for MyNaksh's personalized chat. For every user "
-            "turn, call ask_mynaksh with the recognized user message, whatever its topic. "
+            "You are the voice interface for personalized memory's personalized chat. For every user "
+            "turn, call ask_memory with the recognized user message, whatever its topic. "
             "Preserve the user's words and mixed languages in the message; do not translate "
             "or paraphrase it into a single language. Hinglish naturally mixes Hindi and English. "
             "Do not answer using your own knowledge. After the tool succeeds, speak only "
@@ -55,7 +55,7 @@ def session_config(model: str = "gpt-realtime-2.1") -> dict[str, Any]:
             {
                 "type": "function",
                 "name": TOOL_NAME,
-                "description": "Get an answer from the personalized MyNaksh chat service.",
+                "description": "Get an answer from the personalized personalized memory chat service.",
                 "parameters": {
                     "type": "object",
                     "properties": {
@@ -335,7 +335,7 @@ def build_realtime_router(
     async def tool_output(call: _Call, function: dict[str, Any], generation: int) -> None:
         call_id = function.get("call_id")
         name = function.get("name")
-        safe_result = "I couldn't reach the MyNaksh chat service. Please try again."
+        safe_result = "I couldn't reach the personalized memory chat service. Please try again."
         result_ok = False
         try:
             if (
@@ -359,14 +359,15 @@ def build_realtime_router(
                 value = await invoke_chat(call.owner, message.strip())
             finally:
                 log.info(
-                    "Realtime MyNaksh request duration_ms=%d", (time.monotonic() - started) * 1000
+                    "Realtime personalized memory request duration_ms=%d",
+                    (time.monotonic() - started) * 1000,
                 )
             if not isinstance(value, str) or not value.strip():
                 raise ValueError("empty chat answer")
             safe_result = value.strip()
             result_ok = True
         except Exception:
-            log.info("Realtime MyNaksh tool failed call_id=%s", call.call_id)
+            log.info("Realtime personalized memory tool failed call_id=%s", call.call_id)
         if call.finished:
             return
         if isinstance(call_id, str) and call_id in call.tool_outputs:
@@ -398,7 +399,7 @@ def build_realtime_router(
         )
         if not result_ok:
             # Surface a fixed, factual error in the shared conversation. Do not
-            # invoke the model to improvise when MyNaksh is unavailable.
+            # invoke the model to improvise when personalized memory is unavailable.
             await send(
                 call,
                 {
@@ -590,7 +591,7 @@ def build_realtime_router(
                             for item in response.get("output", [])
                         ):
                             if not is_speech:
-                                # A response without a completed MyNaksh tool is
+                                # A response without a completed personalized memory tool is
                                 # outside configured behavior; terminate promptly.
                                 call.ending.set()
                                 with suppress(Exception):

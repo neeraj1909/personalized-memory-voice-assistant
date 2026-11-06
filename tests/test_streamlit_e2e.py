@@ -220,9 +220,9 @@ def test_streamlit_login_memory_cross_session_and_optional_voice_e2e(
     gateway_env.update(
         {
             "CHAT_API_URL": f"{assignment_url}/chat",
-            "ASTRO_GATEWAY_TOKEN": GATEWAY_TOKEN,
-            "ASTRO_IDENTITY_PUBLIC_KEY_FILE": str(public_key_path),
-            "ASTRO_GATEWAY_REPLAY_DB": str(tmp_path / "gateway-replays.sqlite3"),
+            "PMVA_GATEWAY_TOKEN": GATEWAY_TOKEN,
+            "PMVA_IDENTITY_PUBLIC_KEY_FILE": str(public_key_path),
+            "PMVA_GATEWAY_REPLAY_DB": str(tmp_path / "gateway-replays.sqlite3"),
             "CHAT_API_TIMEOUT_SECONDS": "15",
             "PYTHONPATH": str(WORKSPACE),
             "NO_PROXY": "127.0.0.1,localhost",
@@ -281,9 +281,9 @@ def test_streamlit_login_memory_cross_session_and_optional_voice_e2e(
         _wait_for_http(f"{gateway_url}/openapi.json", gateway_process, gateway_log)
 
         monkeypatch.setenv("GATEWAY_URL", gateway_url)
-        monkeypatch.setenv("ASTRO_GATEWAY_TOKEN", GATEWAY_TOKEN)
-        monkeypatch.setenv("ASTRO_IDENTITY_PRIVATE_KEY_FILE", str(private_key_path))
-        monkeypatch.setenv("ASTRO_ACCOUNTS_DB", str(tmp_path / "accounts.sqlite3"))
+        monkeypatch.setenv("PMVA_GATEWAY_TOKEN", GATEWAY_TOKEN)
+        monkeypatch.setenv("PMVA_IDENTITY_PRIVATE_KEY_FILE", str(private_key_path))
+        monkeypatch.setenv("PMVA_ACCOUNTS_DB", str(tmp_path / "accounts.sqlite3"))
         app_path = WORKSPACE / "streamlit_app.py"
 
         # Create Alice, then log in from a fresh AppTest session to prove the

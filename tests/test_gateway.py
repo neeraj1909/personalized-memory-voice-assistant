@@ -114,7 +114,7 @@ def test_chat_requires_valid_server_bearer_token_before_forwarding(tmp_path: Pat
 def test_chat_fails_closed_when_gateway_token_is_unconfigured_or_short(
     monkeypatch, tmp_path
 ) -> None:
-    monkeypatch.delenv("ASTRO_GATEWAY_TOKEN", raising=False)
+    monkeypatch.delenv("PMVA_GATEWAY_TOKEN", raising=False)
     payload = {"user_id": "u", "session_id": "s", "message": "Hi"}
     with TestClient(
         create_app("http://chat.test/chat", replay_db_path=str(tmp_path / "missing.sqlite"))
@@ -196,7 +196,7 @@ def test_shared_gateway_token_cannot_assert_an_account_identity(tmp_path: Path) 
 def test_chat_fails_closed_when_identity_verifier_is_unconfigured(
     tmp_path: Path, monkeypatch
 ) -> None:
-    monkeypatch.delenv("ASTRO_IDENTITY_PUBLIC_KEY_FILE", raising=False)
+    monkeypatch.delenv("PMVA_IDENTITY_PUBLIC_KEY_FILE", raising=False)
     forwarded = False
 
     def handler(_):

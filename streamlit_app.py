@@ -1,4 +1,4 @@
-"""Streamlit chat UI for the local astrology gateway.
+"""Streamlit chat UI for the local personalized memory gateway.
 
 This local demo signs gateway assertions from account-bound Streamlit state.
 The assignment API itself does not authenticate user IDs; direct callers who
@@ -6,6 +6,8 @@ can reach it can choose IDs. Keep it on a trusted local machine.
 """
 
 from __future__ import annotations
+
+from personalized_memory.compat import getenv
 
 import hashlib
 import base64
@@ -38,8 +40,8 @@ from app.security import canonical_chat_body
 MAX_AUDIO_BYTES = 8 * 1024 * 1024
 MAX_AUDIO_SECONDS = 30
 MAX_MESSAGE_CHARS = 4000
-ACCOUNT_DB = os.getenv(
-    "ASTRO_ACCOUNTS_DB",
+ACCOUNT_DB = getenv(
+    "PMVA_ACCOUNTS_DB",
     str(Path.home() / ".local" / "share" / "conversational-ai-for-astro" / "accounts.sqlite3"),
 )
 
@@ -61,10 +63,10 @@ def _valid_chat_token(value: str) -> bool:
 
 
 def _chat_gateway_headers() -> dict[str, str]:
-    token = os.getenv("ASTRO_GATEWAY_TOKEN", "")
+    token = getenv("PMVA_GATEWAY_TOKEN", "")
     if not _valid_chat_token(token):
         raise GatewayError(
-            "Chat gateway auth is not configured. Set ASTRO_GATEWAY_TOKEN to a server-only token with at least 32 ASCII non-whitespace characters."
+            "Chat gateway auth is not configured. Set PMVA_GATEWAY_TOKEN to a server-only token with at least 32 ASCII non-whitespace characters."
         )
     return {"Authorization": f"Bearer {token}", "Accept": "application/json"}
 
@@ -127,7 +129,7 @@ def post_chat(user_id: str, session_id: str, message: str) -> str:
 
 def _identity_assertion(payload: dict[str, str]) -> str:
     """Sign the authenticated Streamlit account/session for this exact chat request."""
-    key_path = os.getenv("ASTRO_IDENTITY_PRIVATE_KEY_FILE", "")
+    key_path = getenv("PMVA_IDENTITY_PRIVATE_KEY_FILE", "")
     if not key_path:
         raise GatewayError("Chat identity signing is not configured.")
     private_key_path = Path(key_path).expanduser()
@@ -391,7 +393,7 @@ def _consent_changed(consent_key: str) -> None:
 
 
 def _show_auth_gate() -> None:
-    st.title("Starlight")
+    st.title("Personalized Memory Voice Assistant")
     st.caption(
         "A local demo account for this app installation; it is not an online identity provider."
     )
@@ -456,12 +458,12 @@ def _submit_chat(draft_key: str) -> None:
 
 
 def _render_chat() -> None:
-    st.title("Astro Voice Assistant")
-    st.caption("Ask an astrology question, or start a voice conversation.")
-    token = os.getenv("ASTRO_GATEWAY_TOKEN", "")
+    st.title("Personalized Memory Voice Assistant")
+    st.caption("Ask a question, or start a voice conversation.")
+    token = getenv("PMVA_GATEWAY_TOKEN", "")
     if not _valid_chat_token(token):
         st.warning(
-            "Chat is not configured. Set ASTRO_GATEWAY_TOKEN on the Streamlit server to a server-only token with at least 32 ASCII non-whitespace characters."
+            "Chat is not configured. Set PMVA_GATEWAY_TOKEN on the Streamlit server to a server-only token with at least 32 ASCII non-whitespace characters."
         )
     st.sidebar.markdown("### Local demo account")
     st.sidebar.write(f"Signed in as **{st.session_state['username']}**")
@@ -591,13 +593,13 @@ def _render_chat() -> None:
                 st.rerun()
         if st.session_state.get("chat_error"):
             st.error(st.session_state["chat_error"])
-        st.caption(
-            "Astrology is for reflection, not professional advice. Text is sent to chat only when you choose Send."
-        )
+        st.caption("Text is sent to chat only when you choose Send.")
 
 
 def main() -> None:
-    st.set_page_config(page_title="Starlight · Astrology chat", page_icon="✳", layout="centered")
+    st.set_page_config(
+        page_title="Personalized Memory Voice Assistant", page_icon="✳", layout="centered"
+    )
     for key, default in (
         ("account_id", ""),
         ("username", ""),

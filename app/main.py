@@ -1,5 +1,7 @@
 """Thin same-origin gateway to the existing chat API."""
 
+from personalized_memory.compat import getenv
+
 import os
 import ipaddress
 import logging
@@ -88,7 +90,7 @@ def create_app(
     """Build the gateway; upstream configuration is kept on the server."""
     url = upstream_url if upstream_url is not None else os.getenv("CHAT_API_URL", "")
     configured_token = (
-        gateway_token if gateway_token is not None else os.getenv("ASTRO_GATEWAY_TOKEN", "")
+        gateway_token if gateway_token is not None else getenv("PMVA_GATEWAY_TOKEN", "")
     )
     timeout = (
         timeout_seconds
@@ -98,13 +100,13 @@ def create_app(
     if timeout <= 0:
         raise ValueError("CHAT_API_TIMEOUT_SECONDS must be positive")
 
-    app = FastAPI(title="Astrology Chat Gateway")
+    app = FastAPI(title="Personalized Memory Chat Gateway")
     app.state.gateway_token = configured_token
     app.state.identity_public_key = (
         identity_public_key if identity_public_key is not None else load_identity_public_key()
     )
-    app.state.replay_db_path = replay_db_path or os.getenv(
-        "ASTRO_GATEWAY_REPLAY_DB",
+    app.state.replay_db_path = replay_db_path or getenv(
+        "PMVA_GATEWAY_REPLAY_DB",
         str(
             Path.home()
             / ".local"
@@ -115,9 +117,9 @@ def create_app(
     )
     app.include_router(local_asr_router)
 
-    web_origin = os.getenv("ASTRO_WEB_AUTH_ORIGIN", "").strip()
+    web_origin = getenv("PMVA_WEB_AUTH_ORIGIN", "").strip()
     if web_origin:
-        warm_token = os.getenv("ASTRO_MEMORY_WARM_TOKEN", "")
+        warm_token = getenv("PMVA_MEMORY_WARM_TOKEN", "")
         warm_url = memory_warm_url(url) if warm_token else None
 
         async def warm_memory(user_id: str, session_id: str) -> None:
@@ -156,7 +158,7 @@ def create_app(
         )
 
     async def forward_chat(payload: ChatRequest) -> ChatResponse:
-        """Forward one trusted identity-bound request to the existing MyNaksh API."""
+        """Forward one trusted identity-bound request to the memory service."""
         if not url:
             raise HTTPException(status_code=503, detail="Chat service is not configured")
 
