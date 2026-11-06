@@ -1,6 +1,8 @@
-# MyNaksh Voice Assistant
+# Personalized Memory Voice Assistant
 
-MyNaksh Voice Assistant is a browser-based voice interface to the MyNaksh chat and memory service. Instead of submitting a structured API request, a signed-in user can ask questions aloud and receive spoken responses informed by their stored preferences and conversation context. It supports general personal queries, including the topics illustrated in the MyNaksh dataset. Users can speak without choosing a language and interrupt the assistant while it is speaking.
+A browser-based voice assistant that remembers your preferences and uses conversation history to give more relevant answers. Speak naturally, pause for a response, and interrupt when you want to change direction. The assistant supports English, Hindi and mixed-language conversations without a language selector.
+
+The project is based on the MyNaksh assignment's personalized chat and memory service.
 
 ## Local setup
 
