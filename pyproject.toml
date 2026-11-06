@@ -1,5 +1,5 @@
 [project]
-name = "conversational-ai-for-astro"
+name = "personalized-memory-voice-assistant"
 version = "0.1.0"
 description = "A local web gateway for an existing chat API."
 requires-python = ">=3.11"
