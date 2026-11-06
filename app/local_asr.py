@@ -94,7 +94,7 @@ async def _run_whisper(audio: bytes, cli: str, model: str, language: str) -> str
     process: asyncio.subprocess.Process | None = None
     try:
         try:
-            temp_dir = tempfile.TemporaryDirectory(prefix="astro-asr-")
+            temp_dir = tempfile.TemporaryDirectory(prefix="memory-asr-")
             temp_root = Path(temp_dir.name)
             input_path = temp_root / "input.wav"
             output_prefix = temp_root / "transcription"
