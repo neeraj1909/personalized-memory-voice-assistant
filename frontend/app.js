@@ -105,7 +105,7 @@ function appendMessage(role, text) {
   article.className = `message message-${role}`;
   const label = document.createElement("div");
   label.className = "message-label";
-  label.textContent = role === "user" ? "You" : "Starlight";
+  label.textContent = role === "user" ? "You" : "Assistant";
   const body = document.createElement("p");
   body.className = "message-body";
   body.textContent = text;
