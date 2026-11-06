@@ -23,19 +23,19 @@ function setPage(markup) {
 function renderAuth(mode = 'login') {
   const isRegister = mode === 'register';
   setPage(`
-    <header class="site-header"><a class="brand" href="/" aria-label="MyNaksh home"><span class="brand-mark" aria-hidden="true">✦</span><span>MYNAKSH</span></a></header>
+    <header class="site-header"><a class="brand" href="/" aria-label="Personalized Memory home"><span class="brand-mark" aria-hidden="true">✦</span><span>PERSONALIZED MEMORY</span></a></header>
     <main class="auth-wrap">
       <p class="eyebrow">Your conversational voice assistant</p>
-      <h1>${isRegister ? 'Create your MyNaksh account' : 'Welcome back'}</h1>
+      <h1>${isRegister ? 'Create your Personalized Memory account' : 'Welcome back'}</h1>
       <p class="auth-intro">${isRegister ? 'Create a local demo account to continue your conversations.' : 'Sign in to continue your conversations.'}</p>
       <form class="auth-form" id="auth-form">
         <label class="field" for="username">Username<input id="username" name="username" autocomplete="username" required maxlength="80" /></label>
         <label class="field" for="password">Password<input id="password" name="password" type="password" autocomplete="${isRegister ? 'new-password' : 'current-password'}" required minlength="${isRegister ? 12 : 1}" /></label>
         <button class="start-button auth-submit" type="submit">${isRegister ? 'Create account' : 'Sign in'}</button>
       </form>
-      <p class="auth-switch">${isRegister ? 'Already have an account?' : 'New to MyNaksh?'} <button id="switch-auth" type="button">${isRegister ? 'Sign in' : 'Create account'}</button></p>
+      <p class="auth-switch">${isRegister ? 'Already have an account?' : 'New to Personalized Memory?'} <button id="switch-auth" type="button">${isRegister ? 'Sign in' : 'Create account'}</button></p>
       <p class="error-box auth-alert" id="auth-error" role="alert" hidden></p>
-      <p class="auth-footer">Your account identity is handled by MyNaksh. This page does not store account IDs or provider credentials.</p>
+      <p class="auth-footer">Your account identity is handled by Personalized Memory. This page does not store account IDs or provider credentials.</p>
     </main>
   `);
   const form = app.querySelector('#auth-form');
@@ -52,7 +52,7 @@ function renderAuth(mode = 'login') {
       const action = isRegister ? register : login;
       await action(String(values.get('username') ?? '').trim(), String(values.get('password') ?? ''));
       const session = await getAuthSession();
-      if (!session.authenticated) throw new Error('MyNaksh could not confirm your sign-in. Please try again.');
+      if (!session.authenticated) throw new Error('Personalized Memory could not confirm your sign-in. Please try again.');
       renderVoice(session);
     } catch (err) {
       error.textContent = err instanceof Error ? err.message : 'Sign-in could not be completed. Please try again.';
@@ -67,7 +67,7 @@ function renderAuth(mode = 'login') {
 function renderVoice(session) {
   const root = setPage(`
     <header class="site-header">
-      <a class="brand" href="/" aria-label="MyNaksh home"><span class="brand-mark" aria-hidden="true">✦</span><span>MYNAKSH</span></a>
+      <a class="brand" href="/" aria-label="Personalized Memory home"><span class="brand-mark" aria-hidden="true">✦</span><span>PERSONALIZED MEMORY</span></a>
       <div class="account-tools"><span id="account-name"></span><button class="quiet-button" id="sign-out" type="button">Sign out</button></div>
     </header>
     <main class="page">
@@ -81,7 +81,7 @@ function renderVoice(session) {
         <div class="state-line" role="status" aria-live="polite" aria-atomic="true"><span class="state-indicator" aria-hidden="true"></span><span id="voice-status">Ready</span></div>
         <p class="voice-hint" id="voice-hint">Start a conversation when you’re ready.</p>
         <button class="start-button" id="toggle-call" type="button">Start talking</button>
-        <p class="privacy-note">Audio connects to the voice service only after you start. The service uses your signed-in MyNaksh session.</p>
+        <p class="privacy-note">Audio connects to the voice service only after you start. The service uses your signed-in Personalized Memory session.</p>
         <button class="audio-enable" id="enable-audio" type="button" hidden>Enable spoken replies</button>
       </section>
       <div class="error-box" id="voice-error" role="alert" hidden></div>
@@ -92,7 +92,7 @@ function renderVoice(session) {
         </div>
       </section>
       <p class="transcript-footnote">Voice timing and recognition depend on your connection and surroundings.</p>
-      <audio id="remote-audio" autoplay playsinline class="sr-only" aria-label="MyNaksh spoken reply"></audio>
+      <audio id="remote-audio" autoplay playsinline class="sr-only" aria-label="Personalized Memory spoken reply"></audio>
     </main>
   `);
 
@@ -261,7 +261,7 @@ async function boot() {
     if (session.authenticated) renderVoice(session);
     else renderAuth('login');
   } catch (error) {
-    setPage('<header class="site-header"><a class="brand" href="/">MYNAKSH</a></header><main class="auth-wrap"><h1>MyNaksh is unavailable</h1><p class="auth-intro">Could not check your sign-in session.</p><div class="error-box" role="alert"></div><button class="start-button auth-submit" id="retry-session" type="button">Try again</button></main>');
+    setPage('<header class="site-header"><a class="brand" href="/">PERSONALIZED MEMORY</a></header><main class="auth-wrap"><h1>Personalized Memory is unavailable</h1><p class="auth-intro">Could not check your sign-in session.</p><div class="error-box" role="alert"></div><button class="start-button auth-submit" id="retry-session" type="button">Try again</button></main>');
     app.querySelector('.error-box').textContent = error instanceof Error ? error.message : 'Check your connection and try again.';
     app.querySelector('#retry-session').addEventListener('click', boot);
   }

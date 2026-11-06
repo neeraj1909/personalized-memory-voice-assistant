@@ -22,7 +22,7 @@ async function request(path, { method = 'GET', body, fetchImpl = globalThis.fetc
   try {
     response = await fetchImpl(path, options);
   } catch {
-    throw new AuthError('Could not reach MyNaksh sign-in. Check your connection and try again.', 0);
+    throw new AuthError('Could not reach Personalized Memory sign-in. Check your connection and try again.', 0);
   }
   if (!response.ok) {
     throw new AuthError(messages.get(response.status) ?? 'Sign-in could not be completed. Please try again.', response.status);
@@ -31,14 +31,14 @@ async function request(path, { method = 'GET', body, fetchImpl = globalThis.fetc
   try {
     return await response.json();
   } catch {
-    throw new AuthError('MyNaksh returned an unreadable sign-in response.', response.status);
+    throw new AuthError('Personalized Memory returned an unreadable sign-in response.', response.status);
   }
 }
 
 export async function getAuthSession(fetchImpl) {
   const result = await request('/api/auth/session', { fetchImpl });
   if (!result || typeof result.authenticated !== 'boolean') {
-    throw new AuthError('MyNaksh returned an invalid sign-in session.', 200);
+    throw new AuthError('Personalized Memory returned an invalid sign-in session.', 200);
   }
   return {
     authenticated: result.authenticated,

@@ -331,7 +331,7 @@ export class RealtimeCall {
   }
 
   #httpError(status) {
-    if (status === 401 || status === 403) return new Error('Your MyNaksh sign-in is no longer active. Sign in again to start a voice conversation.');
+    if (status === 401 || status === 403) return new Error('Your Personalized Memory sign-in is no longer active. Sign in again to start a voice conversation.');
     if (status === 429 || status === 503) return new Error('Voice service is unavailable right now. Try again shortly.');
     return new Error('Could not start the voice conversation. Check your connection and try again.');
   }
